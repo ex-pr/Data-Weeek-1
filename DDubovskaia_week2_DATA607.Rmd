@@ -1,0 +1,107 @@
+---
+title: "Assignment – Loading Data into a Data Frame"
+author: "Daria Dubovskaia"
+date: "03 09 2022"
+output:
+  html_document: default
+---
+
+```{r setup, echo=FALSE, results='hide', warning=FALSE, message=FALSE}
+library(ggplot2)
+```
+
+<p align="center">
+  <img src="https://ichef.bbci.co.uk/news/976/cpsprodpb/9BD8/production/_97969893_def3208f-9cd0-48fb-99e7-8534c63993b6.jpg.webp">
+</p>
+
+# 1. Introduction
+The article is called "Where Police Have Killed Americans In 2015" (https://fivethirtyeight.com/features/where-police-have-killed-americans-in-2015/). It contains the description and analysis of a database of Americans killed by police since the start of 2015.<br>
+The data were provided by FiveThirtyEight (https://github.com/fivethirtyeight/data/tree/master/police-killings). They used the Guardian's database and the Census as their sources. 
+
+# 2. Data
+
+## 2.1 Load data and summary of the data
+
+```{r}
+data <- read.csv("https://raw.githubusercontent.com/ex-pr/Data607-Week-2/main/police_killings.csv", header=TRUE, sep=",")
+```
+Dimension 467x34, looking at the dataset and checking which columns have missing values (maybe to remove them)
+```{r}
+dim(data)
+summary(data)
+head(data, n=3)
+```
+## 2.2 Creating a subset
+I decided to check the portrait of a person who most likely to be killed by the police. <br>
+Choosing only columns that look important:
+```{r}
+subset <- data[,c('name','age','gender','raceethnicity','city','state','cause','armed','share_white','share_black','share_hispanic','h_income','county_income','pov','urate')]
+```
+Renaming the dataset columns:
+```{r}
+names(subset)[names(subset) == "raceethnicity"] <- "ethnicity"
+names(subset)[names(subset) == "share_white"] <- "%white"
+names(subset)[names(subset) == "share_black"] <- "%black"
+names(subset)[names(subset) == "share_hispanic"] <- "%hispanic"
+names(subset)[names(subset) == "h_income"] <- "house_income"
+names(subset)[names(subset) == "pov"] <- "pov_rate"
+names(subset)[names(subset) == "urate"] <- "unempl_rate"
+```
+
+Field descriptions: <br>
+name -	Name of deceased <br>
+age	- Age of deceased	<br>
+gender -	Gender of deceased	<br>
+raceethnicity	- Race/ethnicity of deceased <br>
+city	- City where incident occurred <br>
+state	- State where incident occurred <br>
+cause	- Cause of death <br>
+armed	- How/whether deceased was armed <br>
+share_white	- Share of pop that is non-Hispanic white	<br>
+share_black	- Share of pop that is black (alone, not in combination) <br>
+share_hispanic -	Share of pop that is Hispanic/Latino (any race)	<br>
+h_income	- Tract-level median household income	<br>
+county_income	- County-level median household income <br>
+pov	- Tract-level poverty rate (official)<br>
+urate	- Tract-level unemployment rate <br>
+
+## 2.3 Exploratory data analysis 
+The gender of the most victims <br>
+```{r}
+ggplot(subset) +
+ aes(x = gender) +
+ geom_bar(fill='lightgreen') +
+ labs(x = "Gender of deceased", y = "Amount of deaths", title = "Kills by gender") +
+  theme_light() +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+<br>The race of the most victims <br>
+```{r}
+ggplot(subset) +
+ aes(x = ethnicity) +
+ geom_bar(fill='lightblue') +
+ labs(x = "Race/ethnicity of deceased", y = "Amount of deaths", title = "Kills by ethnicity") +
+  theme_light() +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+<br>If a deceased was armed or not. If yes, with what weapon <br>
+```{r}
+ggplot(subset) +
+ aes(x = armed) +
+ geom_bar(fill='pink') +
+ labs(x = "Weapon?", y = "Amount of deaths", title = "Deceased was armed or not") +
+  theme_light() +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+<br>Income of the victims <br>
+```{r warning=FALSE, message=FALSE}
+ggplot(subset) +
+ aes(x = house_income) +
+ geom_histogram(bins=30L,fill='blue') +
+ labs(x = "Median household income", y = "Amount of deaths", title = "Income of the victims") +
+  theme_light() +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+# 3. Conclusions
+The article contained the analysis based only on the race and income of the neighborhood but didn't include the gender of the victims or their age. It is important to know that mostly men are killed by the police. Do they commit more crime? More men are armed? Or they are more attracted by the police to be accidentally killed? So there are questions to be answered, maybe the article could do more research on these questions. It would be also interesting to analyze the common age of the victims. The research in the article is closely connected to the crime level. As a result, the results can be used to better understand the nature of crime and how to prevent it.
